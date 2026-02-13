@@ -63,37 +63,37 @@ This is a production-ready Shopify payment gateway plugin for the PaidYET paymen
 ## Key Features
 
 ### Payment Processing
-✅ Credit card payment processing (sale transactions)
-✅ Authorization-only transactions
-✅ Transaction capture
-✅ Refunds for settled transactions
-✅ Void for unsettled transactions
-✅ Transaction lookup and retrieval
+ Credit card payment processing (sale transactions)
+ Authorization-only transactions
+ Transaction capture
+ Refunds for settled transactions
+ Void for unsettled transactions
+ Transaction lookup and retrieval
 
 ### Security & Compliance
-✅ PCI DSS Level 1 compliance through PaidYET tokenization
-✅ Bearer token authentication with auto-refresh
-✅ HTTPS/SSL enforcement
-✅ CORS protection
-✅ Rate limiting (100 req/15 min per IP)
-✅ Webhook signature verification
-✅ Environment variable security
+ PCI DSS Level 1 compliance through PaidYET tokenization
+ Bearer token authentication with auto-refresh
+ HTTPS/SSL enforcement
+ CORS protection
+ Rate limiting (100 req/15 min per IP)
+ Webhook signature verification
+ Environment variable security
 
 ### Integration Features
-✅ Sandbox and production environments
-✅ Support for merchant-level API keys
-✅ Support for partner-level API keys
-✅ Webhook notifications
-✅ Comprehensive error handling
-✅ Logging and monitoring ready
+ Sandbox and production environments
+ Support for merchant-level API keys
+ Support for partner-level API keys
+ Webhook notifications
+ Comprehensive error handling
+ Logging and monitoring ready
 
 ### Developer Experience
-✅ Well-documented code
-✅ Modular architecture
-✅ Easy configuration
-✅ Test card support
-✅ Development mode with auto-reload
-✅ Health check endpoint
+ Well-documented code
+ Modular architecture
+ Easy configuration
+ Test card support
+ Development mode with auto-reload
+ Health check endpoint
 
 ## Technology Stack
 

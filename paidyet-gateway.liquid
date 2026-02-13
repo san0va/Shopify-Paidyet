@@ -1,0 +1,185 @@
+{% comment %}
+  PaidYET Payment Gateway for Shopify
+  Version: 1.0.0
+  Description: Secure payment processing through PaidYET gateway
+  Author: PaidYET Integration Team
+{% endcomment %}
+
+<div id="paidyet-payment-container">
+  <div id="paidyet-card-errors" role="alert" style="color: #dc3545; margin-bottom: 15px;"></div>
+  <div id="paidyet-card-element" style="padding: 10px; border: 1px solid #ced4da; border-radius: 4px; margin-bottom: 15px;"></div>
+  <button id="paidyet-submit-button" type="button" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%;">
+    Complete Payment
+  </button>
+  <div id="paidyet-loading" style="display: none; text-align: center; margin-top: 15px;">
+    Processing your payment...
+  </div>
+</div>
+
+<script src="https://paidyet.com/widget/v3/paidyet.js"></script>
+
+<script>
+(function() {
+  'use strict';
+
+  // Configuration - These should be set from Shopify admin settings
+  const config = {
+    paypageSubdomain: '{{ shop.metafields.paidyet.paypage_subdomain }}',
+    merchantId: '{{ shop.metafields.paidyet.merchant_id }}',
+    apiKey: '{{ shop.metafields.paidyet.api_key }}',
+    environment: '{{ shop.metafields.paidyet.environment | default: "production" }}',
+    amount: '{{ checkout.total_price | money_without_currency }}',
+    orderId: '{{ checkout.order_id }}',
+    currency: '{{ shop.currency }}'
+  };
+
+  // Initialize PaidYET
+  PaidYET.init(config.paypageSubdomain);
+
+  // Render the card form
+  const formSettings = {
+    amount: config.amount,
+    element: 'paidyet-card-element',
+    hidezip: false,
+    hidenotes: true,
+    style: {
+      paddingTop: '10px',
+      paddingBottom: '10px',
+      paddingLeft: '12px',
+      paddingRight: '12px',
+      borderRadius: '4px',
+      borderWidth: '1px',
+      borderColor: '#ced4da',
+      cvv: {
+        display: 'block',
+        paddingTop: '10px',
+        paddingBottom: '10px',
+        paddingLeft: '12px',
+        paddingRight: '12px',
+        borderRadius: '4px',
+        borderWidth: '1px',
+        borderColor: '#ced4da'
+      }
+    }
+  };
+
+  PaidYET.renderForm(formSettings);
+
+  // Handle payment submission
+  document.getElementById('paidyet-submit-button').addEventListener('click', function() {
+    processPayment();
+  });
+
+  function processPayment() {
+    const submitButton = document.getElementById('paidyet-submit-button');
+    const loadingDiv = document.getElementById('paidyet-loading');
+    const errorDiv = document.getElementById('paidyet-card-errors');
+
+    // Show loading state
+    submitButton.disabled = true;
+    submitButton.textContent = 'Processing...';
+    loadingDiv.style.display = 'block';
+    errorDiv.textContent = '';
+
+    // Process payment through PaidYET
+    PaidYET.processPayment(function(response) {
+      if (response.error) {
+        // Handle error
+        errorDiv.textContent = response.error.message || 'Payment failed. Please try again.';
+        submitButton.disabled = false;
+        submitButton.textContent = 'Complete Payment';
+        loadingDiv.style.display = 'none';
+      } else if (response.token) {
+        // Payment successful, submit to Shopify
+        submitToShopify(response);
+      } else {
+        errorDiv.textContent = 'Unexpected response. Please try again.';
+        submitButton.disabled = false;
+        submitButton.textContent = 'Complete Payment';
+        loadingDiv.style.display = 'none';
+      }
+    });
+  }
+
+  function submitToShopify(paymentResponse) {
+    // Send the payment token to your backend for processing
+    fetch('/apps/paidyet/process-payment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token: paymentResponse.token,
+        order_id: config.orderId,
+        amount: config.amount,
+        currency: config.currency,
+        billing_address: {
+          address: '{{ checkout.billing_address.address1 }}',
+          city: '{{ checkout.billing_address.city }}',
+          state: '{{ checkout.billing_address.province_code }}',
+          postal: '{{ checkout.billing_address.zip }}',
+          country: '{{ checkout.billing_address.country_code }}'
+        },
+        customer: {
+          email: '{{ checkout.email }}',
+          first_name: '{{ checkout.billing_address.first_name }}',
+          last_name: '{{ checkout.billing_address.last_name }}'
+        }
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Payment successful, redirect to success page
+        window.location.href = data.redirect_url || '/checkout/thank_you';
+      } else {
+        // Show error
+        document.getElementById('paidyet-card-errors').textContent = 
+          data.message || 'Payment processing failed. Please try again.';
+        document.getElementById('paidyet-submit-button').disabled = false;
+        document.getElementById('paidyet-submit-button').textContent = 'Complete Payment';
+        document.getElementById('paidyet-loading').style.display = 'none';
+      }
+    })
+    .catch(error => {
+      document.getElementById('paidyet-card-errors').textContent = 
+        'Network error. Please check your connection and try again.';
+      document.getElementById('paidyet-submit-button').disabled = false;
+      document.getElementById('paidyet-submit-button').textContent = 'Complete Payment';
+      document.getElementById('paidyet-loading').style.display = 'none';
+    });
+  }
+})();
+</script>
+
+<style>
+  #paidyet-payment-container {
+    max-width: 500px;
+    margin: 0 auto;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  #paidyet-card-element iframe {
+    width: 100%;
+    height: auto;
+  }
+
+  #paidyet-submit-button:hover:not(:disabled) {
+    background-color: #0056b3;
+  }
+
+  #paidyet-submit-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  #paidyet-card-errors {
+    font-size: 14px;
+    min-height: 20px;
+  }
+
+  #paidyet-loading {
+    font-size: 14px;
+    color: #666;
+  }
+</style>

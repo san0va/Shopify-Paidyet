@@ -4,16 +4,16 @@ A secure and comprehensive payment gateway integration for Shopify using the Pai
 
 ## Features
 
-- ✅ Full PCI DSS compliance through PaidYET's tokenization
-- ✅ Support for sale and authorization-only transactions
-- ✅ Refund and void capabilities
-- ✅ Real-time transaction processing
-- ✅ Webhook support for asynchronous notifications
-- ✅ Comprehensive error handling
-- ✅ Bearer token management with automatic refresh
-- ✅ Sandbox and production environment support
-- ✅ Rate limiting and security middleware
-- ✅ Support for both merchant-level and partner-level API keys
+- Full PCI DSS compliance through PaidYET's tokenization
+- Support for sale and authorization-only transactions
+- Refund and void capabilities
+- Real-time transaction processing
+- Webhook support for asynchronous notifications
+- Comprehensive error handling
+- Bearer token management with automatic refresh
+- Sandbox and production environment support
+- Rate limiting and security middleware
+- Support for both merchant-level and partner-level API keys
 
 ## Prerequisites
 
